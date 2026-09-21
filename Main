@@ -1,0 +1,187 @@
+import java.util.ArrayList;
+import java.util.Scanner;
+public class Main {
+    static Scanner sc = new Scanner(System.in);
+    // Danh sách đồ uống
+    static ArrayList<Drink> menu = new ArrayList<>();
+    public static void main(String[] args) {
+        int choice;
+        while (true) {
+            showMenu();
+            choice = inputInt("Nhap lua chon: ");
+            switch (choice) {
+                case 1:
+                    addDrink();
+                    break;
+                case 2:
+                    displayMenu();
+                    break;
+                case 3:
+                    applyPromotion();
+                    break;
+                case 4:
+                    deleteDrink();
+                    break;
+                case 5:
+                    calculateAveragePrice();
+                    break;
+                case 6:
+                    System.out.println("\nCam on ban da su dung CoffeeShop Pro!");
+                    sc.close();
+                    return;
+                default:
+                    System.out.println("Lua chon khong hop le!");
+            }
+        }
+    }
+    public static void showMenu() {
+        System.out.println("\n================================================");
+        System.out.println("           COFFEESHOP PRO");
+        System.out.println("================================================");
+        System.out.println("1. Them mon vao Menu");
+        System.out.println("2. Hien thi Menu");
+        System.out.println("3. Ap dung ma giam gia");
+        System.out.println("4. Xoa mon");
+        System.out.println("5. Thong ke gia trung binh");
+        System.out.println("6. Thoat");
+        System.out.println("================================================");
+    }
+    public static void addDrink() {
+        System.out.println("\n---------- THEM DO UONG ----------");
+        System.out.println("1. Ca phe");
+        System.out.println("2. Tra trai cay");
+        int type = inputInt("Chon loai do uong: ");
+        if (type != 1 && type != 2) {
+            System.out.println("Loai do uong khong hop le!");
+            return;
+        }
+        String id = inputString("Nhap ID: ");
+        if (findById(id) != -1) {
+            System.out.println("ID da ton tai!");
+            return;
+        }
+        String name = inputString("Nhap ten mon: ");
+        double price = inputDouble("Nhap gia: ");
+        if (price < 0) {
+            System.out.println("Gia khong duoc am!");
+            return;
+        }
+        if (type == 1) {
+            Drink coffee = new Coffee(id, name, price);
+            menu.add(coffee);
+        } else {
+            Drink fruitTea = new FruitTea(id, name, price);
+            menu.add(fruitTea);
+        }
+        System.out.println("-> Them mon thanh cong!");
+    }
+    public static void displayMenu() {
+        if (menu.isEmpty()) {
+            System.out.println("\nMenu dang rong!");
+            return;
+        }
+        System.out.println("\n================================================================");
+        System.out.println("                    MENU COFFEESHOP PRO");
+        System.out.println("================================================================");
+        for (int i = 0; i < menu.size(); i++) {
+            Drink drink = menu.get(i);
+            System.out.println("\nMon thu " + (i + 1));
+            System.out.println("----------------------------------------------");
+            System.out.println("ID: " + drink.getId());
+            System.out.println("Ten mon: " + drink.getName());
+            System.out.print("Cach pha che: ");
+            drink.prepare();
+            System.out.printf("Gia: %,.2f VNĐ%n", drink.getPrice());
+        }
+    }
+    public static void applyPromotion() {
+
+        if (menu.isEmpty()) {
+            System.out.println("\nMenu dang rong!");
+            return;
+        }
+        double percentage =
+                inputDouble("Nhap phan tram giam gia (%): ");
+        if (percentage < 0 || percentage > 100) {
+            System.out.println("Phan tram giam gia phai tu 0 den 100!");
+            return;
+        }
+        for (IPromotion drink : menu) {
+            drink.applyDiscount(percentage);
+        }
+        System.out.println("-> Da ap dung giam " + percentage + "% cho toan bo Menu!");
+    }
+    public static void deleteDrink() {
+        if (menu.isEmpty()) {
+            System.out.println("\nMenu dang rong!");
+            return;
+        }
+        String id = inputString("Nhap ID mon can xoa: ");
+        int index = findById(id);
+        if (index == -1) {
+            System.out.println("Khong tim thay mon!");
+            return;
+        }
+        Drink drink = menu.get(index);
+        System.out.println("Mon se xoa: " + drink.getName());
+        menu.remove(index);
+        System.out.println("-> Xoa mon thanh cong!");
+    }
+    public static void calculateAveragePrice() {
+        if (menu.isEmpty()) {
+            System.out.println("\nMenu dang rong!");
+            return;
+        }
+        double total = 0;
+        for (Drink drink : menu) {
+            total += drink.getPrice();
+        }
+        double average = total / menu.size();
+        System.out.println("\n---------- THONG KE ----------");
+        System.out.println("So luong do uong: " + menu.size());
+        System.out.printf("Tong gia: %,.2f VNĐ%n", total);
+        System.out.printf("Gia trung binh: %,.2f VNĐ%n", average);
+    }
+    public static int findById(String id) {
+        for (int i = 0; i < menu.size(); i++) {
+            if (menu.get(i).getId().equalsIgnoreCase(id)) {
+                return i;
+            }
+        }
+        return -1;
+    }
+    public static int inputInt(String message) {
+        while (true) {
+            try
+            {
+                System.out.print(message);
+                return Integer.parseInt(sc.nextLine());
+            } catch (NumberFormatException e)
+            {
+                System.out.println("Loi! Vui long nhap so nguyen.");
+            }
+        }
+    }
+    public static double inputDouble(String message) {
+        while (true) {
+            try
+            {
+                System.out.print(message);
+                return Double.parseDouble(sc.nextLine());
+            } catch (NumberFormatException e)
+            {
+                System.out.println("Loi! Vui long nhap so.");
+            }
+        }
+    }
+    public static String inputString(String message) {
+        while (true) {
+            System.out.print(message);
+            String value = sc.nextLine().trim();
+            if (!value.isEmpty()) {
+                return value;
+            }
+            System.out.println("Khong duoc de trong!");
+        }
+    }
+}
